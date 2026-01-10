@@ -130,3 +130,18 @@ Par conséquent, pour qu'elle prenne en compte une nouvelle version promue en "P
 
 Capture de github action avec succès : 
 
+![img_12.png](img_12.png)
+
+Nous utilisons Docker Compose dans la CI pour réaliser des **tests d'intégration**. Contrairement aux tests unitaires qui vérifient le code de manière isolée, le job d'intégration valide que les différents services arrivent à démarrer ensemble et à communiquer correctement dans un environnement conteneurisé proche de la production.
+
+
+## Exerice 7 
+
+### Synthèse de la boucle
+
+Dans ce TP, nous avons fermé la boucle d'amélioration continue :
+* **Détection du drift :** Nous utilisons *Evidently* pour comparer la distribution des données entrantes (current) avec celle de l'entraînement (référence). Le `drift_share` mesure la proportion de colonnes ayant statistiquement dévié. Nous avons utilisé un seuil bas de **0.02** pour les besoins du TP, mais en production, ce seuil est généralement plus élevé pour éviter les réentraînements trop courants dus au bruit naturel.
+* **Décision de promotion :** Le flow `train_and_compare_flow` entraîne un candidat et évalue le modèle de Production actuel sur le **même** jeu de validation. La promotion n'est déclenchée que si `new_auc > prod_auc + delta`. Cela garantit que le modèle ne change que pour une amélioration tangible et non pour une fluctuation mineure.
+* **Séparation des roles :**
+    * **Prefect** gère le cycle de vie du modèle (orchestration du data engineering, training et évaluation).
+    * **GitHub Actions** gère le cycle de vie du code. Il vérifie que l'application démarre et que les fonctions logiques sont correctes via des tests unitaires et d'intégration, garantissant la qualité logicielle avant tout déploiement .
