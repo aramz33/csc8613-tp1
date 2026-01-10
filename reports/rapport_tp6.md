@@ -140,8 +140,14 @@ Nous utilisons Docker Compose dans la CI pour réaliser des **tests d'intégrati
 ### Synthèse de la boucle
 
 Dans ce TP, nous avons fermé la boucle d'amélioration continue :
-* **Détection du drift :** Nous utilisons *Evidently* pour comparer la distribution des données entrantes (current) avec celle de l'entraînement (référence). Le `drift_share` mesure la proportion de colonnes ayant statistiquement dévié. Nous avons utilisé un seuil bas de **0.02** pour les besoins du TP, mais en production, ce seuil est généralement plus élevé pour éviter les réentraînements trop courants dus au bruit naturel.
-* **Décision de promotion :** Le flow `train_and_compare_flow` entraîne un candidat et évalue le modèle de Production actuel sur le **même** jeu de validation. La promotion n'est déclenchée que si `new_auc > prod_auc + delta`. Cela garantit que le modèle ne change que pour une amélioration tangible et non pour une fluctuation mineure.
-* **Séparation des roles :**
-    * **Prefect** gère le cycle de vie du modèle (orchestration du data engineering, training et évaluation).
-    * **GitHub Actions** gère le cycle de vie du code. Il vérifie que l'application démarre et que les fonctions logiques sont correctes via des tests unitaires et d'intégration, garantissant la qualité logicielle avant tout déploiement .
+- **Détection du drift :** Nous utilisons *Evidently* pour comparer la distribution des données entrantes (current) avec celle de l'entraînement (référence). Le `drift_share` mesure la proportion de colonnes ayant statistiquement dévié. Nous avons utilisé un seuil bas de **0.02** pour les besoins du TP, mais en production, ce seuil est généralement plus élevé pour éviter les réentraînements trop courants dus au bruit naturel.
+- **Décision de promotion :** Le flow `train_and_compare_flow` entraîne un candidat et évalue le modèle de Production actuel sur le **même** jeu de validation. La promotion n'est déclenchée que si `new_auc > prod_auc + delta`. Cela garantit que le modèle ne change que pour une amélioration tangible et non pour une fluctuation mineure.
+- **Séparation des roles :**
+  - **Prefect** gère le cycle de vie du modèle (orchestration du data engineering, training et évaluation).
+  - **GitHub Actions** gère le cycle de vie du code. Il vérifie que l'application démarre et que les fonctions logiques sont correctes via des tests unitaires et d'intégration, garantissant la qualité logicielle avant tout déploiement.
+
+### Limites et améliorations 
+
+- **Pourquoi pas d'entraînement en CI ?** L'entraînement est un processus lent, couteux en ressources et souvent non-déterministe. La CI doit rester rapide pour ne pas bloquer les développeurs. L'entraînement lourd est donc délégué au pipeline CT (Prefect).
+- **Tests manquants :** Il manque des tests de **qualité de données** approfondis et des tests de **biais/équité** sur le modèle. Des tests de charge seraient aussi nécessaires pour valider la tenue en charge de l'API.
+- **Gouvernance Humaine :** L'automatisation totale comporte des risques. Dans un système critique, une étape d'approbation manuelle (Human-in-the-loop) ou une mise en "Staging" avant la "Production" est souvent requise pour valider les KPIs métier que le modèle ne voit pas.
