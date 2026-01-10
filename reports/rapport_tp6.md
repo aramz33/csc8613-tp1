@@ -68,7 +68,7 @@ On utilise un paramètre `delta` pour garantir la stabilité du système :
 on ne remplace le modèle en production que si le candidat apporte une amélioration significative (au moins +1% ici). Cela évite les déploiements inutiles pour des gains marginaux.
 
 
-## Exerice 4 
+## Exercice 4 
 
 Le monitoring a détecté un drift de **6.25%** (`drift_share=0.06`), ce qui est supérieur au seuil de déclenchement configuré à **0.02**. Le système a donc automatiquement lancé le workflow de réentraînement (`train_and_compare`).
 
@@ -135,7 +135,7 @@ Capture de github action avec succès :
 Nous utilisons Docker Compose dans la CI pour réaliser des **tests d'intégration**. Contrairement aux tests unitaires qui vérifient le code de manière isolée, le job d'intégration valide que les différents services arrivent à démarrer ensemble et à communiquer correctement dans un environnement conteneurisé proche de la production.
 
 
-## Exerice 7 
+## Exercice 7 
 
 ### Synthèse de la boucle
 
